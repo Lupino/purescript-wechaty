@@ -1,0 +1,27 @@
+{
+  "name": "purescript-wechaty",
+  "description": "[WIP!] PureScript bindings to the wechaty library",
+  "authors": [
+    {
+      "name": "Li Meng Jun",
+      "email": "lmjubuntu@gmail.com"
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Lupino/purescript-wechaty",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-aff-promise": "^1.0.0",
+    "purescript-aff": "^4.0.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lupino/purescript-wechaty.git"
+  }
+}
