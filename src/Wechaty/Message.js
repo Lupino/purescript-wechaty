@@ -17,8 +17,11 @@ exports._getContent = function(msg) {
     content = content.replace(/<br[^>]*>/ig, "\n");
     content = content.replace(/<\/?a[^>]*>/ig, "");
     content = content.replace(re_emoji, function(s) {
-      m = re_emoji.exec(s);
-      return '[' + m[1] + ']';
+      var m = re_emoji.exec(s);
+      if (m && m.length > 1) {
+        return '[' + m[1] + ']';
+      }
+      return '';
     });
     return content;
   }

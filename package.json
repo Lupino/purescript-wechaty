@@ -1,6 +1,6 @@
 {
   "name": "purescript-wechaty",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "[WIP!] PureScript bindings to the wechaty library",
   "scripts": {
     "publish": "bower install && pulp publish",
