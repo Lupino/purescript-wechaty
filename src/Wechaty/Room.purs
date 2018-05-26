@@ -8,21 +8,19 @@ module Wechaty.Room
   , getRoomTopic
   , roomTopic
   , findAll
-  , module Wechaty.Types
   ) where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.Class (class MonadAff, liftAff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (liftEff)
+import Effect.Aff (Aff)
+import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect (Effect)
+import Effect.Class (liftEffect)
 import Control.Monad.Reader (ask, ReaderT, runReaderT)
 import Control.Promise (Promise, toAff)
 import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
 import Data.Maybe (Maybe(..))
 import Wechaty.Contact (Contact)
-import Wechaty.Types (WECHATY)
 
 foreign import data Room :: Type
 type RoomT m = ReaderT Room m
@@ -30,38 +28,38 @@ type RoomT m = ReaderT Room m
 runRoomT :: forall a m. Room -> RoomT m a -> m a
 runRoomT room = flip runReaderT room
 
-foreign import _find :: forall eff. String
+foreign import _find :: String
                      -> (Room -> Maybe Room)
                      -> Maybe Room
-                     -> Eff eff (Promise (Maybe Room))
+                     -> Effect (Promise (Maybe Room))
 
-find :: forall eff. String -> Aff eff (Maybe Room)
-find n = liftEff (_find n Just Nothing) >>= toAff
+find :: String -> Aff (Maybe Room)
+find n = liftEffect (_find n Just Nothing) >>= toAff
 
-foreign import _findAll :: forall eff. String -> Eff eff (Promise (Array Room))
+foreign import _findAll :: String -> Effect (Promise (Array Room))
 
-findAll :: forall eff. String -> Aff eff (Array Room)
-findAll n = liftEff (_findAll n) >>= toAff
+findAll :: String -> Aff (Array Room)
+findAll n = liftEffect (_findAll n) >>= toAff
 
-foreign import _say :: forall a eff. Fn2 Room a (Eff eff (Promise Unit))
+foreign import _say :: forall a. Fn2 Room a (Effect (Promise Unit))
 
-runSay :: forall a eff. Room -> a -> Aff eff Unit
-runSay room a = liftEff (runFn2 _say room a) >>= toAff
+runSay :: forall a. Room -> a -> Aff Unit
+runSay room a = liftEffect (runFn2 _say room a) >>= toAff
 
 say
-  :: forall a m eff. MonadAff (wechaty :: WECHATY | eff) m
+  :: forall a m. MonadAff m
   => a -> RoomT m Unit
 say a = do
   room <- ask
   liftAff $ runSay room a
 
-foreign import _sayTo :: forall a eff. Fn3 Room Contact a (Eff eff (Promise Unit))
+foreign import _sayTo :: forall a. Fn3 Room Contact a (Effect (Promise Unit))
 
-runSayTo :: forall a eff. Room -> Contact -> a -> Aff eff Unit
-runSayTo room contact a = liftEff (runFn3 _sayTo room contact a) >>= toAff
+runSayTo :: forall a. Room -> Contact -> a -> Aff Unit
+runSayTo room contact a = liftEffect (runFn3 _sayTo room contact a) >>= toAff
 
 sayTo
-  :: forall a m eff. MonadAff (wechaty :: WECHATY | eff) m
+  :: forall a m. MonadAff m
   => Contact -> a -> RoomT m Unit
 sayTo contact a = do
   room <- ask

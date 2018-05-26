@@ -4,7 +4,7 @@
   "description": "[WIP!] PureScript bindings to the wechaty library",
   "scripts": {
     "publish": "bower install && pulp publish",
-    "build": "pulp build"
+    "build": "pulp -w build"
   },
   "devDependencies": {
     "bower": "^1.8.4",

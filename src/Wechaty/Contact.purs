@@ -8,20 +8,18 @@ module Wechaty.Contact
   , contactName
   , self
   , findAll
-  , module Wechaty.Types
   ) where
 
 import Prelude
 
-import Control.Monad.Aff (Aff)
-import Control.Monad.Aff.Class (class MonadAff, liftAff)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Class (liftEff)
+import Effect.Aff (Aff)
+import Effect.Aff.Class (class MonadAff, liftAff)
+import Effect (Effect)
+import Effect.Class (liftEffect)
 import Control.Monad.Reader (ask, ReaderT, runReaderT)
 import Control.Promise (Promise, toAff)
 import Data.Function.Uncurried (Fn2, runFn2)
 import Data.Maybe (Maybe(..))
-import Wechaty.Types (WECHATY)
 
 foreign import data Contact :: Type
 type ContactT m = ReaderT Contact m
@@ -29,27 +27,27 @@ type ContactT m = ReaderT Contact m
 runContactT :: forall a m. Contact -> ContactT m a -> m a
 runContactT contact = flip runReaderT contact
 
-foreign import _find :: forall eff. String
+foreign import _find :: String
                      -> (Contact -> Maybe Contact)
                      -> Maybe Contact
-                     -> Eff eff (Promise (Maybe Contact))
+                     -> Effect (Promise (Maybe Contact))
 
-find :: forall eff. String -> Aff eff (Maybe Contact)
-find n = liftEff (_find n Just Nothing) >>= toAff
+find :: String -> Aff (Maybe Contact)
+find n = liftEffect (_find n Just Nothing) >>= toAff
 
-foreign import _findAll :: forall eff. String -> Eff eff (Promise (Array Contact))
+foreign import _findAll :: String -> Effect (Promise (Array Contact))
 
-findAll :: forall eff. String -> Aff eff (Array Contact)
-findAll n = liftEff (_findAll n) >>= toAff
+findAll :: String -> Aff (Array Contact)
+findAll n = liftEffect (_findAll n) >>= toAff
 
 
-foreign import _say :: forall a eff. Fn2 Contact a (Eff eff (Promise Unit))
+foreign import _say :: forall a. Fn2 Contact a (Effect (Promise Unit))
 
-runSay :: forall a eff. Contact -> a -> Aff eff Unit
-runSay contact a = liftEff (runFn2 _say contact a) >>= toAff
+runSay :: forall a. Contact -> a -> Aff Unit
+runSay contact a = liftEffect (runFn2 _say contact a) >>= toAff
 
 say
-  :: forall a m eff. MonadAff (wechaty :: WECHATY | eff) m
+  :: forall a m. MonadAff m
   => a -> ContactT m Unit
 say a = do
   contact <- ask
@@ -62,4 +60,4 @@ contactName = getContactName <$> ask
 
 foreign import getContactName :: Contact -> String
 
-foreign import self :: forall eff. Eff (wechaty :: WECHATY | eff) Contact
+foreign import self ::Effect Contact
