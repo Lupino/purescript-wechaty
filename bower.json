@@ -17,7 +17,7 @@
     "tests"
   ],
   "dependencies": {
-    "purescript-aff-promise": "justinwoo/purescript-aff-promise#compiler/0.12",
+    "purescript-aff-promise": "^2.0.0",
     "purescript-aff": "^5.0.0"
   },
   "repository": {
