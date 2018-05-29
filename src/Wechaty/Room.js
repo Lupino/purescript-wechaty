@@ -47,3 +47,11 @@ exports._delete = function(room) {
     }
   }
 }
+
+exports._memberAll = function(room) {
+  return function(name) {
+    return function() {
+      return room.memberAll(name);
+    }
+  }
+}

@@ -9,6 +9,7 @@ module Wechaty.Room
   , roomTopic
   , findAll
   , delete
+  , memberAll
   ) where
 
 import Prelude
@@ -79,3 +80,10 @@ delete :: forall m. MonadAff m => Contact -> RoomT m Unit
 delete c = do
   room <- ask
   liftAff $ liftEffect (_delete room c) >>= toAff
+
+foreign import _memberAll :: Room -> String -> Effect (Promise (Array Contact))
+
+memberAll :: forall m. MonadAff m => String -> RoomT m (Array Contact)
+memberAll n = do
+  room <- ask
+  liftAff $ liftEffect (_memberAll room n) >>= toAff
