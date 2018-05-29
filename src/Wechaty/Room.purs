@@ -8,6 +8,7 @@ module Wechaty.Room
   , getRoomTopic
   , roomTopic
   , findAll
+  , delete
   ) where
 
 import Prelude
@@ -71,3 +72,10 @@ roomTopic
 roomTopic = getRoomTopic <$> ask
 
 foreign import getRoomTopic :: Room -> String
+
+foreign import _delete :: Room -> Contact -> Effect (Promise Unit)
+
+delete :: forall m. MonadAff m => Contact -> RoomT m Unit
+delete c = do
+  room <- ask
+  liftAff $ liftEffect (_delete room c) >>= toAff

@@ -39,3 +39,11 @@ exports._sayTo = function(room, replyTo, obj) {
 exports.getRoomTopic = function(room) {
   return room.topic();
 }
+
+exports._delete = function(room) {
+  return function(contact) {
+    return function() {
+      return room.del(contact);
+    }
+  }
+}
