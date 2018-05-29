@@ -55,3 +55,11 @@ exports._memberAll = function(room) {
     }
   }
 }
+
+exports._add = function(room) {
+  return function(contact) {
+    return function() {
+      return room.add(contact);
+    }
+  }
+}
