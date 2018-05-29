@@ -70,3 +70,13 @@ exports._onError = function(bot) {
     }
   }
 }
+
+exports._onFriend = function(bot) {
+  return function(callback) {
+    return function() {
+      bot.on('friend', function(req) {
+        callback(req)();
+      });
+    }
+  }
+}

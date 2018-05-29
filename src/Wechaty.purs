@@ -11,6 +11,7 @@ module Wechaty
   , onLogout
   , onMessage
   , start
+  , onFriend
   ) where
 
 import Prelude
@@ -23,6 +24,7 @@ import Control.Promise (Promise, toAff)
 import Data.Function.Uncurried (Fn2, runFn2)
 import Wechaty.Contact (Contact, ContactT, runContactT)
 import Wechaty.Message (MessageT, Message, runMessageT)
+import Wechaty.FriendRequest (FriendRequest)
 
 foreign import data Wechaty :: Type
 
@@ -100,3 +102,10 @@ start :: forall m. MonadAff m => WechatyT m Unit
 start = do
   (WechatyConfig _ bot) <- ask
   liftAff $ liftEffect (_start bot) >>= toAff
+
+foreign import _onFriend :: Wechaty -> (FriendRequest -> Effect Unit) -> Effect Unit
+
+onFriend :: forall m. MonadEffect m => (FriendRequest -> m Unit) -> WechatyT m Unit
+onFriend f = do
+  (WechatyConfig runEff bot) <- ask
+  liftEffect $ _onFriend bot $ runEff <<< f
