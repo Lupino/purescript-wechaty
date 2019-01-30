@@ -37,6 +37,7 @@ import Wechaty.Room (Room)
 import Wechaty.Message (MessageT, Message, runMessageT)
 -- import Wechaty.FriendRequest (FriendRequest)
 import Data.Maybe (Maybe (..))
+import Wechaty.Utils (call, callp) as U
 
 foreign import data Wechaty :: Type
 
@@ -47,7 +48,12 @@ type WechatyT m = ReaderT (WechatyConfig m) m
 runWechatyT
   :: forall a m. (m Unit -> Effect Unit)
   -> Wechaty -> WechatyT m a -> m a
-runWechatyT runEff wechaty = flip runReaderT (WechatyConfig runEff wechaty)
+runWechatyT runEff bot = flip runReaderT (WechatyConfig runEff bot)
+
+wechaty :: forall m. Monad m => WechatyT m Wechaty
+wechaty = do
+  (WechatyConfig _ bot) <- ask
+  pure bot
 
 foreign import initWechaty :: Effect Wechaty
 
@@ -122,26 +128,20 @@ doMessage
    -> MessageT m Unit -> Message -> Effect Unit
 doMessage runEff m = runEff <<< flip runMessageT m
 
-foreign import _call :: forall a. Wechaty -> String -> Effect a
-
 call :: forall m a. MonadAff m => String -> WechatyT m a
-call f = do
-  (WechatyConfig _ bot) <- ask
-  liftEffect $ _call bot f
+call = U.call wechaty
 
-callPromise :: forall m. MonadAff m => String -> WechatyT m Unit
-callPromise f = do
-  ff <- call f
-  liftAff $ toAff ff
+callp :: forall m. MonadAff m => String -> WechatyT m Unit
+callp = U.callp wechaty
 
 start :: forall m. MonadAff m => WechatyT m Unit
-start = callPromise "start"
+start = callp "start"
 
 stop :: forall m. MonadAff m => WechatyT m Unit
-stop = callPromise "stop"
+stop = callp "stop"
 
 logout :: forall m. MonadAff m => WechatyT m Unit
-logout = callPromise "logout"
+logout = callp "logout"
 
 logonoff :: forall m. MonadAff m => WechatyT m Boolean
 logonoff = call "logonoff"

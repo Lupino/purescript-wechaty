@@ -52,14 +52,6 @@ exports.showQrcode = function(url) {
   }
 }
 
-exports._call = function(bot) {
-  return function(func) {
-    return function() {
-      return bot[func]();
-    }
-  }
-}
-
 exports._find = function(bot) {
   return function(obj) {
     return function(name) {
