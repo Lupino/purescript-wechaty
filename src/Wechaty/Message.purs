@@ -41,7 +41,7 @@ to :: forall m. MonadEffect m => MessageT m Contact
 to = call ask "to"
 
 room :: forall m. MonadEffect m => MessageT m (Maybe Room)
-room = toMaybe <$> call ask "root"
+room = toMaybe <$> call ask "room"
 
 text :: forall m. MonadEffect m => MessageT m String
 text = call ask "text"
