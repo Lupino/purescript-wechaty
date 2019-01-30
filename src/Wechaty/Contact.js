@@ -12,7 +12,7 @@ exports._find = function(name) {
             return just(c);
           } else {
             var bot = Wechaty.instance();
-            var user = bot.self();
+            var user = bot.userSelf();
             if (user.name() === name) {
               return just(user);
             }
@@ -30,7 +30,7 @@ exports._findAll = function(name) {
       .then(function(c) {
         if (c.length === 0) {
           var bot = Wechaty.instance();
-          var user = bot.self();
+          var user = bot.userSelf();
           if (user.name() === name) {
             return [user];
           }
@@ -52,5 +52,5 @@ exports.getContactName = function(contact) {
 
 exports.self = function() {
   var bot = Wechaty.instance();
-  return bot.self();
+  return bot.userSelf();
 }
