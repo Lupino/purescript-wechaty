@@ -2,26 +2,30 @@ module Wechaty.Room
   ( Room
   , RoomT
   , runRoomT
+  , sync
   , say
-  , sayTo
-  , getRoomTopic
-  , roomTopic
-  , delete
-  , memberAll
   , add
+  , del
+  , quit
+  , topic
+  , setTopic
+  , announce
+  , setAnnounce
+  , alias
+  , has
+  , memberAll
+  , member
+  , memberList
+  , owner
   ) where
 
 import Prelude
 
-import Effect.Aff (Aff)
-import Effect.Aff.Class (class MonadAff, liftAff)
-import Effect (Effect)
-import Effect.Class (liftEffect)
+import Effect.Aff.Class (class MonadAff)
 import Control.Monad.Reader (ask, ReaderT, runReaderT)
-import Control.Promise (Promise, toAff)
-import Data.Function.Uncurried (Fn2, Fn3, runFn2, runFn3)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe (..))
 import Wechaty.Contact (Contact)
+import Wechaty.Utils (call, callp, call1, call1p, property, toMaybe)
 
 foreign import data Room :: Type
 type RoomT m = ReaderT Room m
@@ -29,55 +33,47 @@ type RoomT m = ReaderT Room m
 runRoomT :: forall a m. Room -> RoomT m a -> m a
 runRoomT room = flip runReaderT room
 
+sync :: forall m. MonadAff m => RoomT m Unit
+sync = callp ask "sync"
 
-foreign import _say :: forall a. Fn2 Room a (Effect (Promise Unit))
-
-runSay :: forall a. Room -> a -> Aff Unit
-runSay room a = liftEffect (runFn2 _say room a) >>= toAff
-
-say
-  :: forall a m. MonadAff m
-  => a -> RoomT m Unit
-say a = do
-  room <- ask
-  liftAff $ runSay room a
-
-foreign import _sayTo :: forall a. Fn3 Room Contact a (Effect (Promise Unit))
-
-runSayTo :: forall a. Room -> Contact -> a -> Aff Unit
-runSayTo room contact a = liftEffect (runFn3 _sayTo room contact a) >>= toAff
-
-sayTo
-  :: forall a m. MonadAff m
-  => Contact -> a -> RoomT m Unit
-sayTo contact a = do
-  room <- ask
-  liftAff $ runSayTo room contact a
-
-roomTopic
-  :: forall m. Monad m
-  => RoomT m String
-roomTopic = getRoomTopic <$> ask
-
-foreign import getRoomTopic :: Room -> String
-
-foreign import _delete :: Room -> Contact -> Effect (Promise Unit)
-
-delete :: forall m. MonadAff m => Contact -> RoomT m Unit
-delete c = do
-  room <- ask
-  liftAff $ liftEffect (_delete room c) >>= toAff
-
-foreign import _memberAll :: Room -> String -> Effect (Array Contact)
-
-memberAll :: forall m. MonadAff m => String -> RoomT m (Array Contact)
-memberAll n = do
-  room <- ask
-  liftEffect (_memberAll room n)
-
-foreign import _add :: Room -> Contact -> Effect (Promise Unit)
+say :: forall m. MonadAff m => String -> RoomT m Unit
+say = call1p ask "say"
 
 add :: forall m. MonadAff m => Contact -> RoomT m Unit
-add c = do
-  room <- ask
-  liftAff $ liftEffect (_add room c) >>= toAff
+add = call1p ask "add"
+
+del :: forall m. MonadAff m => Contact -> RoomT m Unit
+del = call1p ask "del"
+
+quit :: forall m. MonadAff m => RoomT m Unit
+quit = callp ask "quit"
+
+topic :: forall m. MonadAff m => RoomT m String
+topic = callp ask "topic"
+
+setTopic :: forall m. MonadAff m => String -> RoomT m Unit
+setTopic = call1p ask "topic"
+
+announce :: forall m. MonadAff m => RoomT m String
+announce = callp ask "announce"
+
+setAnnounce :: forall m. MonadAff m => String -> RoomT m Unit
+setAnnounce = call1p ask "announce"
+
+alias :: forall m. MonadAff m => Contact -> RoomT m String
+alias = call1p ask "alias"
+
+has :: forall m. MonadAff m => Contact -> RoomT m Boolean
+has = call1p ask "has"
+
+memberAll :: forall m. MonadAff m => String -> RoomT m (Array Contact)
+memberAll = call1p ask "memberAll"
+
+member :: forall m. MonadAff m => String -> RoomT m (Maybe Contact)
+member q = toMaybe <$> call1p ask "member" q
+
+memberList :: forall m. MonadAff m => RoomT m (Array Contact)
+memberList = callp ask "memberList"
+
+owner :: forall m. MonadAff m => RoomT m (Maybe Contact)
+owner = toMaybe <$> callp ask "owner"

@@ -4,6 +4,7 @@ module Wechaty.Utils
   , callp
   , call1p
   , property
+  , toMaybe
   ) where
 
 import Prelude
@@ -11,11 +12,13 @@ import Effect (Effect)
 import Effect.Aff.Class (class MonadAff, liftAff)
 import Effect.Class (class MonadEffect, liftEffect)
 import Control.Promise (toAff)
+import Data.Maybe (Maybe (..))
 
 foreign import _call :: forall obj a. obj -> String -> Effect a
 foreign import _call1 :: forall obj arg a. obj -> String -> arg -> Effect a
 
 foreign import property :: forall obj a. String -> obj -> a
+foreign import _toMaybe :: forall a. (a -> Maybe a) -> Maybe a -> a -> Maybe a
 
 call :: forall m obj a. MonadEffect m => m obj -> String -> m a
 call o n = do
@@ -36,3 +39,6 @@ call1p :: forall m obj arg a. MonadAff m => m obj -> String -> arg -> m a
 call1p o n a = do
   f <- call1 o n a
   liftAff $ toAff f
+
+toMaybe :: forall a. a -> Maybe a
+toMaybe = _toMaybe Just Nothing

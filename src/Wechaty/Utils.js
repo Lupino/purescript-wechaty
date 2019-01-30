@@ -26,3 +26,15 @@ exports.property = function(prop) {
     }
   }
 }
+
+exports._toMaybe = function(just) {
+  return function(nothing) {
+    return function(v) {
+      if (v) {
+        return just(v);
+      } else {
+        return nothing
+      }
+    }
+  }
+}
