@@ -11,19 +11,19 @@ exports._sayTo = function(msg, replyTo, obj) {
 }
 
 var re_emoji = /<img[^\[]+\[([^\]]+)][^>]+>/gi;
-exports._getContent = function(msg) {
+exports._getText = function(msg) {
   return function() {
-    var content = msg.content();
-    content = content.replace(/<br[^>]*>/ig, "\n");
-    content = content.replace(/<\/?a[^>]*>/ig, "");
-    content = content.replace(re_emoji, function(s) {
+    var text = msg.text();
+    text = text.replace(/<br[^>]*>/ig, "\n");
+    text = text.replace(/<\/?a[^>]*>/ig, "");
+    text = text.replace(re_emoji, function(s) {
       var m = re_emoji.exec(s);
       if (m && m.length > 1) {
         return '[' + m[1] + ']';
       }
       return '';
     });
-    return content;
+    return text;
   }
 }
 

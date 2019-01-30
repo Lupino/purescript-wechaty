@@ -1,7 +1,7 @@
 module Wechaty.Message
   ( say
   , sayTo
-  , content
+  , text
   , from
   , self
   , room
@@ -35,7 +35,7 @@ runMessageT msg = flip runReaderT msg
 
 foreign import _say :: forall a. Fn2 Message a (Effect (Promise Unit))
 foreign import _sayTo :: forall a. Fn3 Message Contact a (Effect (Promise Unit))
-foreign import _getContent :: Message -> Effect String
+foreign import _getText :: Message -> Effect String
 foreign import _getFrom :: Message -> Effect Contact
 foreign import _getSelf :: Message -> Effect Boolean
 foreign import _room :: Fn3 (Room -> Maybe Room) (Maybe Room) Message (Effect (Maybe Room))
@@ -60,12 +60,12 @@ sayTo contact a = do
   msg <- ask
   liftAff $ runSayTo msg contact a
 
-content
+text
   :: forall m. MonadEffect m
   => MessageT m String
-content = do
+text = do
   msg <- ask
-  liftEffect $ _getContent msg
+  liftEffect $ _getText msg
 
 from
   :: forall m. MonadEffect m
@@ -94,7 +94,7 @@ handleRoom
   -> (Contact -> Boolean -> String -> RoomT m Unit)
   -> MessageT m Unit
 handleRoom r manager m = do
-  msg <- content
+  msg <- text
   f <- from
   lift $ runRoomT r (m f manager msg)
 
@@ -102,6 +102,6 @@ handleContact
   :: forall m. MonadEffect m
   => (String -> ContactT m Unit) -> MessageT m Unit
 handleContact m = do
-  msg <- content
+  msg <- text
   f <- from
   lift $ runContactT f (m msg)
