@@ -23,9 +23,9 @@ import Prelude
 
 import Effect.Aff.Class (class MonadAff)
 import Control.Monad.Reader (ask, ReaderT, runReaderT)
-import Data.Maybe (Maybe (..))
+import Data.Maybe (Maybe)
 import Wechaty.Contact (Contact)
-import Wechaty.Utils (call, callp, call1, call1p, property, toMaybe)
+import Wechaty.Utils (callp, call1p, toMaybe)
 
 foreign import data Room :: Type
 type RoomT m = ReaderT Room m
