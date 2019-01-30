@@ -10,7 +10,7 @@ module Wechaty
   , onLogin
   , onLogout
   , onMessage
-  -- , onFriendShip
+  , onFriendship
   , start
   , stop
   , logout
@@ -23,6 +23,7 @@ module Wechaty
   -- , findMessage
   -- , findMessageAll
   , say
+  , addFriendship
   ) where
 
 import Prelude
@@ -36,7 +37,7 @@ import Control.Promise (Promise, toAff)
 import Wechaty.Contact (Contact, ContactT, runContactT)
 import Wechaty.Room (Room)
 import Wechaty.Message (MessageT, Message, runMessageT)
--- import Wechaty.FriendRequest (FriendRequest)
+import Wechaty.Friendship (Friendship)
 import Data.Maybe (Maybe (..))
 import Wechaty.Utils (call, callp, call1p) as U
 
@@ -111,10 +112,10 @@ onMessage m = do
   (WechatyConfig runEff _) <- ask
   on1 "message" $ doMessage runEff m
 
--- onFriendShip :: forall m. MonadEffect m => (FriendRequest -> m Unit) -> WechatyT m Unit
--- onFriendShip f = do
---   (WechatyConfig runEff _) <- ask
---   on1 "friendship" $ runEff <<< f
+onFriendship :: forall m. MonadEffect m => (Friendship -> m Unit) -> WechatyT m Unit
+onFriendship f = do
+  (WechatyConfig runEff _) <- ask
+  on1 "friendship" $ runEff <<< f
 
 
 foreign import showQrcode :: String -> (Effect Unit)
@@ -191,3 +192,10 @@ findRoomAll = findAll "Room"
 
 say :: forall m. MonadAff m => String -> WechatyT m Unit
 say = U.call1p wechaty "say"
+
+foreign import _addFriendship :: Wechaty -> Contact -> String -> Effect (Promise Unit)
+
+addFriendship :: forall m. MonadAff m => Contact -> String -> WechatyT m Unit
+addFriendship c h = do
+  (WechatyConfig _ bot) <- ask
+  liftAff $ liftEffect (_addFriendship bot c h) >>= toAff

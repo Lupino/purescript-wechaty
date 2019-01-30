@@ -82,3 +82,13 @@ exports._findAll = function(bot) {
     }
   }
 }
+
+exports._addFriendship = function(bot) {
+  return function(contact) {
+    return function(hello) {
+      return function() {
+        return bot.Friendship.add(contact, hello);
+      }
+    }
+  }
+}
