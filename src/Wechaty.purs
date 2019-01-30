@@ -22,6 +22,7 @@ module Wechaty
   , findRoomAll
   -- , findMessage
   -- , findMessageAll
+  , say
   ) where
 
 import Prelude
@@ -37,7 +38,7 @@ import Wechaty.Room (Room)
 import Wechaty.Message (MessageT, Message, runMessageT)
 -- import Wechaty.FriendRequest (FriendRequest)
 import Data.Maybe (Maybe (..))
-import Wechaty.Utils (call, callp) as U
+import Wechaty.Utils (call, callp, call1p) as U
 
 foreign import data Wechaty :: Type
 
@@ -187,3 +188,6 @@ findRoomAll = findAll "Room"
 --
 -- findMessageAll :: forall m. MonadAff m => String -> WechatyT m (Array Message)
 -- findMessageAll = findAll "Message"
+
+say :: forall m. MonadAff m => String -> WechatyT m Unit
+say = U.call1p wechaty "say"
