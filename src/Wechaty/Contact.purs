@@ -3,21 +3,22 @@ module Wechaty.Contact
   , ContactT
   , runContactT
   , say
-  , getContactName
-  , contactName
+  , sync
   , self
+  , name
+  , alias
+  , setAlias
+  , friend
+  , province
+  , city
+  , name'
   ) where
 
 import Prelude
 
-import Effect.Aff (Aff)
-import Effect.Aff.Class (class MonadAff, liftAff)
-import Effect (Effect)
-import Effect.Class (liftEffect)
+import Effect.Aff.Class (class MonadAff)
 import Control.Monad.Reader (ask, ReaderT, runReaderT)
-import Control.Promise (Promise, toAff)
-import Data.Function.Uncurried (Fn2, runFn2)
-import Data.Maybe (Maybe(..))
+import Wechaty.Utils (call, callp, call1, call1p, property)
 
 foreign import data Contact :: Type
 type ContactT m = ReaderT Contact m
@@ -25,23 +26,32 @@ type ContactT m = ReaderT Contact m
 runContactT :: forall a m. Contact -> ContactT m a -> m a
 runContactT contact = flip runReaderT contact
 
-foreign import _say :: forall a. Fn2 Contact a (Effect (Promise Unit))
+say :: forall m. MonadAff m => String -> ContactT m Unit
+say = call1p ask "say"
 
-runSay :: forall a. Contact -> a -> Aff Unit
-runSay contact a = liftEffect (runFn2 _say contact a) >>= toAff
+sync :: forall m. MonadAff m => ContactT m Unit
+sync = callp ask "sync"
 
-say
-  :: forall a m. MonadAff m
-  => a -> ContactT m Unit
-say a = do
-  contact <- ask
-  liftAff $ runSay contact a
+self :: forall m. MonadAff m => ContactT m Boolean
+self = call ask "self"
 
-contactName
-  :: forall m. Monad m
-  => ContactT m String
-contactName = getContactName <$> ask
+name :: forall m. MonadAff m => ContactT m String
+name = call ask "name"
 
-foreign import getContactName :: Contact -> String
+alias :: forall m. MonadAff m => ContactT m String
+alias = call ask "alias"
 
-foreign import self :: Effect Contact
+setAlias :: forall m. MonadAff m => String -> ContactT m String
+setAlias = call1 ask "alias"
+
+friend :: forall m. MonadAff m => ContactT m Boolean
+friend = call ask "friend"
+
+province :: forall m. MonadAff m => ContactT m String
+province = call ask "province"
+
+city :: forall m. MonadAff m => ContactT m String
+city = call ask "city"
+
+name' :: Contact -> String
+name' = property "name"

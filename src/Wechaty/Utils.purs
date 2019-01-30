@@ -3,6 +3,7 @@ module Wechaty.Utils
   , call1
   , callp
   , call1p
+  , property
   ) where
 
 import Prelude
@@ -13,6 +14,8 @@ import Control.Promise (toAff)
 
 foreign import _call :: forall obj a. obj -> String -> Effect a
 foreign import _call1 :: forall obj arg a. obj -> String -> arg -> Effect a
+
+foreign import property :: forall obj a. String -> obj -> a
 
 call :: forall m obj a. MonadEffect m => m obj -> String -> m a
 call o n = do

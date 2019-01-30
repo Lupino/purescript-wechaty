@@ -15,3 +15,14 @@ exports._call1 = function(obj) {
     }
   }
 }
+
+exports.property = function(prop) {
+  return function(obj) {
+    var r = obj[prop];
+    if (typeof r === 'function') {
+      return r();
+    } else {
+      return r;
+    }
+  }
+}
