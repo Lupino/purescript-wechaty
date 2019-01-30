@@ -7,15 +7,41 @@ exports.initWechaty = function() {
   return Wechaty.instance({profile: config.default.DEFAULT_PROFILE});
 }
 
-exports._onScan = function(bot) {
-  return function(callback) {
-    return function() {
-      bot.on('scan', function(url, code) {
-        callback(url)(code)();
-      });
+var wrapOn = function(wrap) {
+  return function(bot) {
+    return function(event) {
+      return function(callback) {
+        return function() {
+          bot.on(event, wrap(callback));
+        }
+      }
     }
   }
-}
+};
+
+exports._on = wrapOn(function(cb) {
+  return function() {
+    cb();
+  }
+});
+
+exports._on1 = wrapOn(function(cb) {
+  return function(arg1) {
+    cb(arg1)();
+  }
+});
+
+exports._on2 = wrapOn(function(cb) {
+  return function(arg1, arg2) {
+    cb(arg1)(arg2)();
+  }
+});
+
+exports._on3 = wrapOn(function(cb) {
+  return function(arg1, arg2, arg3) {
+    cb(arg1)(arg2)(arg3)();
+  }
+});
 
 exports.showQrcode = function(url) {
   return function() {
@@ -26,57 +52,41 @@ exports.showQrcode = function(url) {
   }
 }
 
-exports._onLogout = function(bot, callback) {
-  return function() {
-    bot.on('logout', function(user) {
-      callback(user)();
-    });
-  }
-}
-
-exports._onLogin = function(bot, callback) {
-  return function() {
-    bot.on('login', function(user) {
-      callback(user)();
-    });
-  }
-}
-
-exports._onMessage = function(bot, callback) {
-  return function() {
-    bot.on('message', function(message) {
-      if (message.type() === 1) {
-        return callback(message)();
-      }
-    });
-  }
-}
-
-exports._start = function(bot) {
-  return function() {
-    return bot.start();
-  }
-}
-
-exports._onError = function(bot) {
-  return function(callback) {
+exports._call = function(bot) {
+  return function(func) {
     return function() {
-      bot.on('error', function(e) {
-        callback(e.message)();
-        if (bot.logonoff()) {
-          bot.say('Wechaty error: ' + e.message).catch(console.error)
-        }
-      });
+      return bot[func]();
     }
   }
 }
 
-exports._onFriend = function(bot) {
-  return function(callback) {
-    return function() {
-      bot.on('friend', function(req) {
-        callback(req)();
-      });
+exports._find = function(bot) {
+  return function(obj) {
+    return function(name) {
+      return function(just) {
+        return function(nothing) {
+          return function() {
+            return bot[obj].find({name: name})
+              .then(function(c) {
+              if (c) {
+                return just(c);
+              } else {
+                return nothing;
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+}
+
+exports._findAll = function(bot) {
+  return function(obj) {
+    return function(name) {
+      return function() {
+        return bot[obj].findAll({name: new RegExp(name)});
+      }
     }
   }
 }

@@ -2,12 +2,10 @@ module Wechaty.Room
   ( Room
   , RoomT
   , runRoomT
-  , find
   , say
   , sayTo
   , getRoomTopic
   , roomTopic
-  , findAll
   , delete
   , memberAll
   , add
@@ -31,18 +29,6 @@ type RoomT m = ReaderT Room m
 runRoomT :: forall a m. Room -> RoomT m a -> m a
 runRoomT room = flip runReaderT room
 
-foreign import _find :: String
-                     -> (Room -> Maybe Room)
-                     -> Maybe Room
-                     -> Effect (Promise (Maybe Room))
-
-find :: String -> Aff (Maybe Room)
-find n = liftEffect (_find n Just Nothing) >>= toAff
-
-foreign import _findAll :: String -> Effect (Promise (Array Room))
-
-findAll :: String -> Aff (Array Room)
-findAll n = liftEffect (_findAll n) >>= toAff
 
 foreign import _say :: forall a. Fn2 Room a (Effect (Promise Unit))
 
