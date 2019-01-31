@@ -153,36 +153,36 @@ userSelf = call "userSelf"
 
 foreign import _find
   :: forall a. Wechaty -> String
-  -> String
+  -> String -> String
   -> (a -> Maybe a) -> Maybe a
   -> Effect (Promise (Maybe a))
 
-find :: forall m a. MonadAff m => String -> String -> WechatyT m (Maybe a)
-find m n = do
+find :: forall m a. MonadAff m => String -> String -> String -> WechatyT m (Maybe a)
+find m k n = do
   (WechatyConfig _ bot) <- ask
-  liftAff $ liftEffect (_find bot m n Just Nothing) >>= toAff
+  liftAff $ liftEffect (_find bot m k n Just Nothing) >>= toAff
 
 foreign import _findAll
   :: forall a. Wechaty -> String
-  -> String
+  -> String -> String
   -> Effect (Promise (Array a))
 
-findAll :: forall m a. MonadAff m => String -> String -> WechatyT m (Array a)
-findAll m n = do
+findAll :: forall m a. MonadAff m => String -> String -> String -> WechatyT m (Array a)
+findAll m k n = do
   (WechatyConfig _ bot) <- ask
-  liftAff $ liftEffect (_findAll bot m n) >>= toAff
+  liftAff $ liftEffect (_findAll bot m k n) >>= toAff
 
 findContact :: forall m. MonadAff m => String -> WechatyT m (Maybe Contact)
-findContact = find "Contact"
+findContact = find "Contact" "name"
 
 findContactAll :: forall m. MonadAff m => String -> WechatyT m (Array Contact)
-findContactAll = findAll "Contact"
+findContactAll = findAll "Contact" "name"
 
 findRoom :: forall m. MonadAff m => String -> WechatyT m (Maybe Room)
-findRoom = find "Room"
+findRoom = find "Room" "topic"
 
 findRoomAll :: forall m. MonadAff m => String -> WechatyT m (Array Room)
-findRoomAll = findAll "Room"
+findRoomAll = findAll "Room" "topic"
 
 -- findMessage :: forall m. MonadAff m => String -> WechatyT m (Maybe Message)
 -- findMessage = find "Message"

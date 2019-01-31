@@ -54,18 +54,22 @@ exports.showQrcode = function(url) {
 
 exports._find = function(bot) {
   return function(obj) {
-    return function(name) {
-      return function(just) {
-        return function(nothing) {
-          return function() {
-            return bot[obj].find({name: name})
-              .then(function(c) {
-              if (c) {
-                return just(c);
-              } else {
-                return nothing;
-              }
-            });
+    return function(key) {
+      return function(name) {
+        return function(just) {
+          return function(nothing) {
+            return function() {
+              var q = {};
+              q[key] = name;
+              return bot[obj].find(q)
+                .then(function(c) {
+                if (c) {
+                  return just(c);
+                } else {
+                  return nothing;
+                }
+              });
+            }
           }
         }
       }
@@ -75,9 +79,13 @@ exports._find = function(bot) {
 
 exports._findAll = function(bot) {
   return function(obj) {
-    return function(name) {
-      return function() {
-        return bot[obj].findAll({name: new RegExp(name)});
+    return function(key) {
+      return function(name) {
+        return function() {
+          var q = {};
+          q[key] = new RegExp(name);
+          return bot[obj].findAll(q);
+        }
       }
     }
   }
